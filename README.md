@@ -9,7 +9,7 @@ Each package should be buildable, testable, and publishable on its own.
 ## Packages
 
 - `@raytonx/core` - shared types and utilities for Raytonx NestJS modules.
-- `@raytonx/config` - configuration module for NestJS applications.
+- `@raytonx/config` - configuration module with env file loading for NestJS applications.
 
 Planned packages:
 

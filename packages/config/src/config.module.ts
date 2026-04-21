@@ -6,6 +6,7 @@ import type {
   ConfigModuleOptions,
   ConfigValues,
 } from "./config.interfaces";
+import { loadConfig } from "./config.loader";
 import { ConfigService } from "./config.service";
 
 @Module({})
@@ -18,15 +19,20 @@ export class ConfigModule {
       providers: [
         {
           provide: CONFIG_MODULE_OPTIONS,
-          useValue: options,
+          useValue: {
+            ...options,
+            values: loadConfig(options).values,
+          },
         },
         ConfigService,
       ],
       exports: [ConfigService],
     };
 
-    if (options.global !== undefined) {
-      dynamicModule.global = options.global;
+    const isGlobal = options.isGlobal ?? options.global;
+
+    if (isGlobal !== undefined) {
+      dynamicModule.global = isGlobal;
     }
 
     return dynamicModule;
@@ -43,6 +49,12 @@ export class ConfigModule {
       providers: [...asyncProviders, asyncOptionsProvider, ConfigService],
       exports: [ConfigService],
     };
+
+    const isGlobal = options.isGlobal ?? options.global;
+
+    if (isGlobal !== undefined) {
+      dynamicModule.global = isGlobal;
+    }
 
     if (options.imports !== undefined) {
       dynamicModule.imports = options.imports;
@@ -72,7 +84,14 @@ export class ConfigModule {
     if (options.useFactory) {
       return {
         provide: CONFIG_MODULE_OPTIONS,
-        useFactory: options.useFactory,
+        useFactory: async (...args: unknown[]) => {
+          const moduleOptions = await options.useFactory?.(...args);
+
+          return {
+            ...moduleOptions,
+            values: loadConfig(moduleOptions).values,
+          };
+        },
         inject: options.inject ?? [],
       };
     }
@@ -87,7 +106,14 @@ export class ConfigModule {
       provide: CONFIG_MODULE_OPTIONS,
       useFactory: async (factory: {
         createModuleOptions: () => ConfigModuleOptions | Promise<ConfigModuleOptions>;
-      }) => factory.createModuleOptions(),
+      }) => {
+        const moduleOptions = await factory.createModuleOptions();
+
+        return {
+          ...moduleOptions,
+          values: loadConfig(moduleOptions).values,
+        };
+      },
       inject: [optionsFactory],
     };
   }
