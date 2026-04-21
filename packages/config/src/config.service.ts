@@ -1,4 +1,5 @@
 import { Inject, Injectable, Optional } from "@nestjs/common";
+
 import { CONFIG_MODULE_OPTIONS } from "./config.constants";
 import type { ConfigModuleOptions, ConfigValues } from "./config.interfaces";
 
@@ -28,4 +29,3 @@ export class ConfigService<TValues extends ConfigValues = ConfigValues> {
     return this.values;
   }
 }
-

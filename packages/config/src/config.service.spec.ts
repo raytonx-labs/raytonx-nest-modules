@@ -1,12 +1,13 @@
 import { describe, expect, it } from "vitest";
+
 import { ConfigService } from "./config.service";
 
 describe("ConfigService", () => {
   it("returns configured values", () => {
     const service = new ConfigService({
       values: {
-        appName: "api"
-      }
+        appName: "api",
+      },
     });
 
     expect(service.get("appName")).toBe("api");
@@ -18,4 +19,3 @@ describe("ConfigService", () => {
     expect(() => service.getOrThrow("missing")).toThrow("Missing required config value: missing");
   });
 });
-

@@ -14,7 +14,9 @@
       "require": "./dist/index.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "clean": "rimraf dist",
@@ -28,4 +30,3 @@
     "@nestjs/common": "^11.0.0"
   }
 }
-

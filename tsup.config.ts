@@ -8,6 +8,5 @@ export default defineConfig({
   clean: true,
   target: "node18",
   splitting: false,
-  treeshake: true
+  treeshake: true,
 });
-

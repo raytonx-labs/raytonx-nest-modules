@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { createInjectionToken } from "./tokens";
 
 describe("createInjectionToken", () => {
@@ -6,4 +7,3 @@ describe("createInjectionToken", () => {
     expect(createInjectionToken("@raytonx/config", "options")).toBe("@raytonx/config:options");
   });
 });
-

@@ -9,4 +9,3 @@ export interface ConfigModuleOptions<TValues extends ConfigValues = ConfigValues
 
 export type ConfigModuleAsyncOptions<TValues extends ConfigValues = ConfigValues> =
   AsyncModuleOptions<ConfigModuleOptions<TValues>>;
-

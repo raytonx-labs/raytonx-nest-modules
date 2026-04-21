@@ -1,23 +1,28 @@
-import { DynamicModule, Module, Provider } from "@nestjs/common";
+import { type DynamicModule, Module, type Provider } from "@nestjs/common";
+
 import { CONFIG_MODULE_OPTIONS } from "./config.constants";
-import type { ConfigModuleAsyncOptions, ConfigModuleOptions, ConfigValues } from "./config.interfaces";
+import type {
+  ConfigModuleAsyncOptions,
+  ConfigModuleOptions,
+  ConfigValues,
+} from "./config.interfaces";
 import { ConfigService } from "./config.service";
 
 @Module({})
 export class ConfigModule {
   static forRoot<TValues extends ConfigValues = ConfigValues>(
-    options: ConfigModuleOptions<TValues> = {}
+    options: ConfigModuleOptions<TValues> = {},
   ): DynamicModule {
     const dynamicModule: DynamicModule = {
       module: ConfigModule,
       providers: [
         {
           provide: CONFIG_MODULE_OPTIONS,
-          useValue: options
+          useValue: options,
         },
-        ConfigService
+        ConfigService,
       ],
-      exports: [ConfigService]
+      exports: [ConfigService],
     };
 
     if (options.global !== undefined) {
@@ -28,7 +33,7 @@ export class ConfigModule {
   }
 
   static forRootAsync<TValues extends ConfigValues = ConfigValues>(
-    options: ConfigModuleAsyncOptions<TValues>
+    options: ConfigModuleAsyncOptions<TValues>,
   ): DynamicModule {
     const asyncOptionsProvider = this.createAsyncOptionsProvider(options);
     const asyncProviders = this.createAsyncProviders(options);
@@ -36,7 +41,7 @@ export class ConfigModule {
     const dynamicModule: DynamicModule = {
       module: ConfigModule,
       providers: [...asyncProviders, asyncOptionsProvider, ConfigService],
-      exports: [ConfigService]
+      exports: [ConfigService],
     };
 
     if (options.imports !== undefined) {
@@ -47,7 +52,7 @@ export class ConfigModule {
   }
 
   private static createAsyncProviders<TValues extends ConfigValues>(
-    options: ConfigModuleAsyncOptions<TValues>
+    options: ConfigModuleAsyncOptions<TValues>,
   ): Provider[] {
     if (!options.useClass) {
       return [];
@@ -56,19 +61,19 @@ export class ConfigModule {
     return [
       {
         provide: options.useClass,
-        useClass: options.useClass
-      }
+        useClass: options.useClass,
+      },
     ];
   }
 
   private static createAsyncOptionsProvider<TValues extends ConfigValues>(
-    options: ConfigModuleAsyncOptions<TValues>
+    options: ConfigModuleAsyncOptions<TValues>,
   ): Provider {
     if (options.useFactory) {
       return {
         provide: CONFIG_MODULE_OPTIONS,
         useFactory: options.useFactory,
-        inject: options.inject ?? []
+        inject: options.inject ?? [],
       };
     }
 
@@ -80,9 +85,10 @@ export class ConfigModule {
 
     return {
       provide: CONFIG_MODULE_OPTIONS,
-      useFactory: async (factory: { createModuleOptions: () => ConfigModuleOptions | Promise<ConfigModuleOptions> }) =>
-        factory.createModuleOptions(),
-      inject: [optionsFactory]
+      useFactory: async (factory: {
+        createModuleOptions: () => ConfigModuleOptions | Promise<ConfigModuleOptions>;
+      }) => factory.createModuleOptions(),
+      inject: [optionsFactory],
     };
   }
 }

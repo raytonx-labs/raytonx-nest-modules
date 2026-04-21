@@ -11,11 +11,10 @@ import { ConfigModule, ConfigService } from "@raytonx/config";
   imports: [
     ConfigModule.forRoot({
       values: {
-        appName: "api"
-      }
-    })
-  ]
+        appName: "api",
+      },
+    }),
+  ],
 })
 export class AppModule {}
 ```
-
