@@ -63,6 +63,55 @@ pnpm format:check
 - Git hooks: `husky`
 - Staged file checks: `lint-staged`
 - Commit message linting: `commitlint`
+- Versioning and publishing: `changesets`
+
+## CI
+
+GitHub Actions runs the following checks on `main` pushes and pull requests:
+
+```bash
+pnpm format:check
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm build
+```
+
+## Versioning and Publishing
+
+Create a changeset for package changes:
+
+```bash
+pnpm changeset
+```
+
+When preparing a release, update package versions and changelogs:
+
+```bash
+pnpm version-packages
+pnpm install
+pnpm build
+```
+
+Commit the generated version and changelog changes, then create and push a release tag:
+
+```bash
+git tag v0.1.0
+git push origin main --tags
+```
+
+Pushing a `v*` tag starts the publish workflow. It runs checks, builds packages, and publishes
+unpublished package versions to npm with `pnpm changeset publish`.
+
+Publishing uses npm Trusted Publishing through GitHub Actions OIDC, so no npm automation token
+is required in GitHub secrets. Configure each npm package with this trusted publisher:
+
+```txt
+Provider: GitHub Actions
+Owner: raytonx-labs
+Repository: raytonx-nest-modules
+Workflow: publish.yml
+```
 
 ## Git Hooks
 

@@ -3,6 +3,11 @@
   "version": "0.1.0",
   "description": "Shared utilities and types for Raytonx NestJS modules.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/raytonx-labs/raytonx-nest-modules.git",
+    "directory": "packages/core"
+  },
   "sideEffects": false,
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -13,6 +18,9 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     }
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "files": [
     "dist"
