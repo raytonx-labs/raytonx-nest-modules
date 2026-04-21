@@ -79,6 +79,8 @@ pnpm build
 
 ## Versioning and Publishing
 
+Packages are published under the npm organization scope `@raytonx`.
+
 Create a changeset for package changes:
 
 ```bash
@@ -103,15 +105,70 @@ git push origin main --tags
 Pushing a `v*` tag starts the publish workflow. It runs checks, builds packages, and publishes
 unpublished package versions to npm with `pnpm changeset publish`.
 
-Publishing uses npm Trusted Publishing through GitHub Actions OIDC, so no npm automation token
-is required in GitHub secrets. Configure each npm package with this trusted publisher:
+Publishing uses npm Trusted Publishing through GitHub Actions OIDC, so no npm automation
+token is required in GitHub secrets after Trusted Publishing is configured.
+
+### First Publish
+
+npm requires a package to exist before its Trusted Publisher can be configured. For the
+first publish of each package, publish manually from a local npm account that belongs to
+the `@raytonx` organization and has publish permission.
+
+npm requires either account 2FA for publishing or a granular access token with bypass 2FA.
+Prefer account 2FA for the first publish, then use Trusted Publishing for all future
+publishes.
+
+Build before publishing:
+
+```bash
+pnpm install
+pnpm build
+```
+
+Publish `@raytonx/core` first:
+
+```bash
+pnpm --filter @raytonx/core publish --access public --otp <one-time-password>
+```
+
+Then publish `@raytonx/config`:
+
+```bash
+pnpm --filter @raytonx/config publish --access public --otp <one-time-password>
+```
+
+Use `pnpm publish` instead of running `npm publish` inside package folders so workspace
+dependencies are handled correctly.
+
+### Trusted Publishing Setup
+
+After the first publish, configure Trusted Publishing separately for each npm package:
+
+- `@raytonx/core`
+- `@raytonx/config`
+
+On npmjs.com, open the package page and go to:
+
+```txt
+Settings -> Trusted Publisher -> GitHub Actions
+```
+
+Use this trusted publisher configuration:
 
 ```txt
 Provider: GitHub Actions
-Owner: raytonx-labs
+Organization or user: raytonx-labs
 Repository: raytonx-nest-modules
-Workflow: publish.yml
+Workflow filename: publish.yml
+Environment name: leave empty
 ```
+
+The GitHub owner is `raytonx-labs` because the repository is
+`raytonx-labs/raytonx-nest-modules`. This is separate from the npm organization scope
+`@raytonx`.
+
+After Trusted Publishing is configured, future releases are published by pushing a `v*`
+tag. Do not add an `NPM_TOKEN` secret for publishing.
 
 ## Git Hooks
 
