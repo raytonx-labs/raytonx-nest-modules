@@ -1,0 +1,24 @@
+{
+  "name": "raytonx-nest-modules",
+  "version": "0.0.0",
+  "private": true,
+  "description": "A monorepo for independently installable NestJS modules.",
+  "license": "MIT",
+  "packageManager": "pnpm@10.28.0",
+  "scripts": {
+    "build": "pnpm -r --filter './packages/*' build",
+    "clean": "pnpm -r --filter './packages/*' clean",
+    "test": "pnpm -r --filter './packages/*' test",
+    "typecheck": "pnpm -r --filter './packages/*' typecheck"
+  },
+  "devDependencies": {
+    "@swc/core": "^1.5.0",
+    "@types/node": "^20.12.7",
+    "reflect-metadata": "^0.2.2",
+    "rimraf": "^5.0.5",
+    "rxjs": "^7.8.1",
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.5",
+    "vitest": "^1.5.0"
+  }
+}
