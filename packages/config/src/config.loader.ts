@@ -17,7 +17,6 @@ export function loadConfig<TValues extends ConfigValues = ConfigValues>(
   const envFilePaths = resolveEnvFilePaths(options.envFilePath, cwd);
   const envFileValues = loadEnvFiles(envFilePaths, {
     expandVariables: options.expandVariables ?? true,
-    overrideProcessEnv: options.overrideProcessEnv ?? false,
   });
 
   const values = {
@@ -57,7 +56,6 @@ function loadEnvFiles(
   envFilePaths: string[],
   options: {
     expandVariables: boolean;
-    overrideProcessEnv: boolean;
   },
 ): ConfigValues {
   const values: Record<string, string> = {};
@@ -70,9 +68,7 @@ function loadEnvFiles(
     const parsed = parse(readFileSync(envFilePath));
 
     for (const [key, value] of Object.entries(parsed)) {
-      if (options.overrideProcessEnv || process.env[key] === undefined) {
-        values[key] = value;
-      }
+      if (process.env[key] === undefined) values[key] = value;
     }
   }
 

@@ -11,7 +11,6 @@ export interface ConfigModuleOptions<TValues extends ConfigValues = ConfigValues
   cwd?: string;
   envFilePath?: ConfigEnvFilePath;
   expandVariables?: boolean;
-  overrideProcessEnv?: boolean;
   schema?: ConfigSchema<TValues>;
   values?: TValues;
 }
