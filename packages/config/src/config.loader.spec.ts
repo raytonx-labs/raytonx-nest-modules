@@ -2,7 +2,9 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
+import { z } from "zod";
 
+import { ConfigValidationError } from "./config.errors";
 import { loadConfig, resolveEnvFilePaths } from "./config.loader";
 
 describe("config loader", () => {
@@ -79,6 +81,48 @@ describe("config loader", () => {
     });
 
     expect(config.values.APP_URL).toBe("http://localhost:3000");
+  });
+
+  it("validates and transforms config with a zod schema", () => {
+    const cwd = createTempDir();
+
+    writeFileSync(join(cwd, ".env"), "PORT=3000\n");
+
+    const config = loadConfig({
+      cwd,
+      envFilePath: ".env",
+      schema: z.object({
+        PORT: z.coerce.number(),
+      }),
+    });
+
+    expect(config.values.PORT).toBe(3000);
+  });
+
+  it("throws a readable error when schema validation fails", () => {
+    const cwd = createTempDir();
+
+    writeFileSync(join(cwd, ".env"), "PORT=not-a-number\n");
+
+    expect(() =>
+      loadConfig({
+        cwd,
+        envFilePath: ".env",
+        schema: z.object({
+          PORT: z.coerce.number(),
+        }),
+      }),
+    ).toThrow(ConfigValidationError);
+
+    expect(() =>
+      loadConfig({
+        cwd,
+        envFilePath: ".env",
+        schema: z.object({
+          PORT: z.coerce.number(),
+        }),
+      }),
+    ).toThrow("PORT:");
   });
 
   function createTempDir(): string {

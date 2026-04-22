@@ -1,4 +1,5 @@
 export * from "./config.constants";
+export * from "./config.errors";
 export * from "./config.interfaces";
 export * from "./config.loader";
 export * from "./config.module";

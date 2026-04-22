@@ -2,6 +2,7 @@ import { parse } from "dotenv";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
+import { ConfigValidationError } from "./config.errors";
 import type { ConfigModuleOptions, ConfigValues } from "./config.interfaces";
 
 export interface LoadedConfig<TValues extends ConfigValues = ConfigValues> {
@@ -19,13 +20,15 @@ export function loadConfig<TValues extends ConfigValues = ConfigValues>(
     overrideProcessEnv: options.overrideProcessEnv ?? false,
   });
 
+  const values = {
+    ...envFileValues,
+    ...(options.values ?? {}),
+    ...definedProcessEnv(),
+  };
+
   return {
     envFilePaths,
-    values: {
-      ...envFileValues,
-      ...(options.values ?? {}),
-      ...definedProcessEnv(),
-    } as TValues,
+    values: validateConfig(values, options),
   };
 }
 
@@ -96,6 +99,23 @@ function expandVariables(values: Record<string, string>): ConfigValues {
       }),
     ]),
   );
+}
+
+function validateConfig<TValues extends ConfigValues>(
+  values: ConfigValues,
+  options: ConfigModuleOptions<TValues>,
+): TValues {
+  if (!options.schema) {
+    return values as TValues;
+  }
+
+  const result = options.schema.safeParse(values);
+
+  if (!result.success) {
+    throw new ConfigValidationError(result.error);
+  }
+
+  return result.data;
 }
 
 function definedProcessEnv(): Record<string, string> {

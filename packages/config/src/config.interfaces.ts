@@ -1,7 +1,9 @@
 import type { AsyncModuleOptions } from "@raytonx/core";
+import type { ZodType } from "zod";
 
 export type ConfigValues = Record<string, unknown>;
 export type ConfigEnvFilePath = "auto" | string | string[] | false;
+export type ConfigSchema<TValues extends ConfigValues = ConfigValues> = ZodType<TValues>;
 
 export interface ConfigModuleOptions<TValues extends ConfigValues = ConfigValues> {
   global?: boolean;
@@ -10,6 +12,7 @@ export interface ConfigModuleOptions<TValues extends ConfigValues = ConfigValues
   envFilePath?: ConfigEnvFilePath;
   expandVariables?: boolean;
   overrideProcessEnv?: boolean;
+  schema?: ConfigSchema<TValues>;
   values?: TValues;
 }
 

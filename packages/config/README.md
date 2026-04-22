@@ -105,3 +105,41 @@ ConfigModule.forRoot({
   },
 });
 ```
+
+## Schema Validation
+
+Use Zod to validate and transform configuration during module initialization:
+
+```ts
+import { z } from "zod";
+
+const configSchema = z.object({
+  NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+  PORT: z.coerce.number().default(3000),
+  DATABASE_URL: z.string().url(),
+});
+
+type AppConfig = z.infer<typeof configSchema>;
+
+ConfigModule.forRoot<AppConfig>({
+  isGlobal: true,
+  envFilePath: "auto",
+  schema: configSchema,
+});
+```
+
+If validation fails, `ConfigModule` throws `ConfigValidationError` with the failing config
+path and Zod message.
+
+Validated values are exposed through `ConfigService`:
+
+```ts
+@Injectable()
+export class AppService {
+  constructor(private readonly config: ConfigService<AppConfig>) {}
+
+  get port(): number {
+    return this.config.getOrThrow("PORT");
+  }
+}
+```
