@@ -1,0 +1,123 @@
+import { parse } from "dotenv";
+import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+import { ConfigValidationError } from "./config.errors";
+import type { ConfigModuleOptions, ConfigValues } from "./config.interfaces";
+
+export interface LoadedConfig<TValues extends ConfigValues = ConfigValues> {
+  values: TValues;
+  envFilePaths: string[];
+}
+
+export function loadConfig<TValues extends ConfigValues = ConfigValues>(
+  options: ConfigModuleOptions<TValues> = {},
+): LoadedConfig<TValues> {
+  const cwd = options.cwd ?? process.cwd();
+  const envFilePaths = resolveEnvFilePaths(options.envFilePath, cwd);
+  const envFileValues = loadEnvFiles(envFilePaths, {
+    expandVariables: options.expandVariables ?? true,
+  });
+
+  const values = {
+    ...envFileValues,
+    ...(options.values ?? {}),
+    ...definedProcessEnv(),
+  };
+
+  return {
+    envFilePaths,
+    values: validateConfig(values, options),
+  };
+}
+
+export function resolveEnvFilePaths(
+  envFilePath: ConfigModuleOptions["envFilePath"],
+  cwd = process.cwd(),
+): string[] {
+  if (envFilePath === false || envFilePath === undefined) {
+    return [];
+  }
+
+  if (envFilePath === "auto") {
+    const nodeEnv = process.env.NODE_ENV ?? "development";
+
+    return [".env", ".env.local", `.env.${nodeEnv}`, `.env.${nodeEnv}.local`].map((filePath) =>
+      resolve(cwd, filePath),
+    );
+  }
+
+  return (Array.isArray(envFilePath) ? envFilePath : [envFilePath]).map((filePath) =>
+    resolve(cwd, filePath),
+  );
+}
+
+function loadEnvFiles(
+  envFilePaths: string[],
+  options: {
+    expandVariables: boolean;
+  },
+): ConfigValues {
+  const values: Record<string, string> = {};
+
+  for (const envFilePath of envFilePaths) {
+    if (!existsSync(envFilePath)) {
+      continue;
+    }
+
+    const parsed = parse(readFileSync(envFilePath));
+
+    for (const [key, value] of Object.entries(parsed)) {
+      if (process.env[key] === undefined) values[key] = value;
+    }
+  }
+
+  if (options.expandVariables) {
+    return expandVariables(values);
+  }
+
+  return values;
+}
+
+function expandVariables(values: Record<string, string>): ConfigValues {
+  const env = {
+    ...values,
+    ...definedProcessEnv(),
+  };
+
+  return Object.fromEntries(
+    Object.entries(values).map(([key, value]) => [
+      key,
+      value.replace(/\${([A-Z0-9_]+)}|\$([A-Z0-9_]+)/gi, (match, bracedKey, plainKey) => {
+        const envKey = (bracedKey ?? plainKey) as string;
+
+        return env[envKey] ?? match;
+      }),
+    ]),
+  );
+}
+
+function validateConfig<TValues extends ConfigValues>(
+  values: ConfigValues,
+  options: ConfigModuleOptions<TValues>,
+): TValues {
+  if (!options.schema) {
+    return values as TValues;
+  }
+
+  const result = options.schema.safeParse(values);
+
+  if (!result.success) {
+    throw new ConfigValidationError(result.error);
+  }
+
+  return result.data;
+}
+
+function definedProcessEnv(): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(process.env).filter(
+      (entry): entry is [string, string] => entry[1] !== undefined,
+    ),
+  );
+}

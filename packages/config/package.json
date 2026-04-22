@@ -32,7 +32,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@raytonx/core": "workspace:*"
+    "@raytonx/core": "workspace:*",
+    "dotenv": "^17.4.2",
+    "zod": "^4.3.6"
   },
   "peerDependencies": {
     "@nestjs/common": "^10.0.0 || ^11.0.0"

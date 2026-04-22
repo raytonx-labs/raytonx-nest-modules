@@ -1,7 +1,7 @@
 {
   "name": "@raytonx/core",
   "version": "0.1.0",
-  "description": "Shared utilities and types for Raytonx NestJS modules.",
+  "description": "Shared utilities and types for RaytonX NestJS modules.",
   "license": "MIT",
   "repository": {
     "type": "git",
