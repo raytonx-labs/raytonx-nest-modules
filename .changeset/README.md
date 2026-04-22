@@ -13,4 +13,4 @@ pnpm build
 
 将版本与 changelog 的改动提交后，通过创建并 push `v*` tag 触发 GitHub Actions 自动发布。
 
-English version: [README.en.md](README.en.md)
+English release workflow docs are in [docs/development.en.md](../docs/development.en.md).
