@@ -1,10 +1,10 @@
 # @raytonx/config
 
-用于 NestJS 应用的配置模块。
+Configuration module for NestJS applications.
 
-English version: `README.en.md`
+Chinese version: `README.md`
 
-## 安装
+## Installation
 
 ```bash
 pnpm add @raytonx/config
@@ -18,7 +18,7 @@ npm i @raytonx/config
 yarn add @raytonx/config
 ```
 
-## 快速开始
+## Quick Start
 
 ```ts
 import { Module } from "@nestjs/common";
@@ -38,7 +38,8 @@ import { ConfigModule } from "@raytonx/config";
 export class AppModule {}
 ```
 
-当 `envFilePath: "auto"` 时，模块会在当前工作目录按以下顺序尝试加载：
+With `envFilePath: "auto"`, the module resolves files from the current working directory using this
+order:
 
 ```txt
 .env
@@ -47,11 +48,11 @@ export class AppModule {}
 .env.${NODE_ENV}.local
 ```
 
-后加载的文件会覆盖先加载的文件。`process.env` 的优先级最高。
+Later files override earlier files. Existing `process.env` values have the highest priority.
 
-## 环境文件
+## Environment Files
 
-加载单个文件：
+Load a single file:
 
 ```ts
 ConfigModule.forRoot({
@@ -59,7 +60,7 @@ ConfigModule.forRoot({
 });
 ```
 
-加载多个文件：
+Load multiple files:
 
 ```ts
 ConfigModule.forRoot({
@@ -67,7 +68,7 @@ ConfigModule.forRoot({
 });
 ```
 
-禁用 env 文件加载：
+Disable env file loading:
 
 ```ts
 ConfigModule.forRoot({
@@ -75,9 +76,9 @@ ConfigModule.forRoot({
 });
 ```
 
-## 变量展开
+## Variable Expansion
 
-默认开启变量展开：
+Variable expansion is enabled by default:
 
 ```env
 APP_HOST=localhost
@@ -85,7 +86,7 @@ APP_PORT=3000
 APP_URL=http://${APP_HOST}:${APP_PORT}
 ```
 
-需要时可关闭：
+Disable it when needed:
 
 ```ts
 ConfigModule.forRoot({
@@ -94,7 +95,7 @@ ConfigModule.forRoot({
 });
 ```
 
-## ConfigService
+## Config Service
 
 ```ts
 import { Injectable } from "@nestjs/common";
@@ -110,9 +111,9 @@ export class AppService {
 }
 ```
 
-## 覆盖（Overrides）
+## Overrides
 
-通过 `values` 在模块初始化时显式覆盖配置：
+Use `values` for explicit overrides during module initialization:
 
 ```ts
 ConfigModule.forRoot({
@@ -123,15 +124,15 @@ ConfigModule.forRoot({
 });
 ```
 
-默认优先级如下：
+By default, `process.env` has the highest priority. The effective precedence is:
 
 ```txt
-env 文件 < values < process.env
+env files < values < process.env
 ```
 
-## Schema 校验
+## Schema Validation
 
-使用 Zod 在模块初始化阶段对配置进行校验与转换：
+Use Zod to validate and transform configuration during module initialization:
 
 ```ts
 import { z } from "zod";
@@ -151,9 +152,10 @@ ConfigModule.forRoot<AppConfig>({
 });
 ```
 
-校验失败时，`ConfigModule` 会抛出 `ConfigValidationError`，并包含失败路径与 Zod 报错信息。
+If validation fails, `ConfigModule` throws `ConfigValidationError` with the failing config path
+and Zod message.
 
-通过 `ConfigService` 可以访问校验后的值：
+Validated values are exposed through `ConfigService`:
 
 ```ts
 @Injectable()
@@ -166,17 +168,17 @@ export class AppService {
 }
 ```
 
-## 总结
+## Summary
 
-- 通过 `envFilePath` 加载 env 文件（`"auto" | string | string[] | false`）
-- `"auto"` 加载顺序：`.env`、`.env.local`、`.env.${NODE_ENV}`、`.env.${NODE_ENV}.local`
-- 默认展开 `${VAR}` 与 `$VAR`（`expandVariables: false` 可关闭）
-- 默认优先级：`env 文件 < values < process.env`
-- 通过 `schema`（Zod）进行校验与转换
+- Loads env files via `envFilePath` (`"auto" | string | string[] | false`)
+- Resolves `"auto"` env files in this order: `.env`, `.env.local`, `.env.${NODE_ENV}`, `.env.${NODE_ENV}.local`
+- Expands `${VAR}` and `$VAR` by default (`expandVariables: false` to disable)
+- Precedence is `env files < values < process.env` by default
+- Validates and transforms config with `schema` (Zod)
 
-## 完整示例
+## Complete Example
 
-`.env.development`：
+`.env.development`:
 
 ```env
 NODE_ENV=development
@@ -184,7 +186,7 @@ PORT=3000
 DATABASE_URL=https://example.invalid
 ```
 
-`src/app.module.ts`：
+`src/app.module.ts`:
 
 ```ts
 import { Module } from "@nestjs/common";
@@ -211,7 +213,7 @@ export type AppConfig = z.infer<typeof configSchema>;
 export class AppModule {}
 ```
 
-`src/app.service.ts`：
+`src/app.service.ts`:
 
 ```ts
 import { Injectable } from "@nestjs/common";
@@ -229,7 +231,7 @@ export class AppService {
 }
 ```
 
-`src/main.ts`：
+`src/main.ts`:
 
 ```ts
 import { NestFactory } from "@nestjs/core";

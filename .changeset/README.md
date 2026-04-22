@@ -1,6 +1,16 @@
-# Changesets
+# Changesets（中文）
 
-This directory stores release intent files created by `pnpm changeset`.
+这个目录保存由 `pnpm changeset` 生成的发布意图文件（changeset files）。
 
-Before a release, run `pnpm version-packages` to update package versions and changelogs,
-then create and push a `v*` tag to publish packages from GitHub Actions.
+发布建议流程：
+
+```bash
+pnpm changeset
+pnpm version-packages
+pnpm install
+pnpm build
+```
+
+将版本与 changelog 的改动提交后，通过创建并 push `v*` tag 触发 GitHub Actions 自动发布。
+
+English version: `README.en.md`
