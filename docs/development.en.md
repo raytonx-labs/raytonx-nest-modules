@@ -1,6 +1,6 @@
 # Development Guide
 
-Chinese version: `docs/development.md`
+Chinese version: [development.md](development.md)
 
 ## Repository Layout
 

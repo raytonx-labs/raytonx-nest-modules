@@ -2,7 +2,7 @@
 
 用于 NestJS 应用的配置模块。
 
-English version: `README.en.md`
+English version: [README.en.md](README.en.md)
 
 ## 安装
 

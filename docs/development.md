@@ -1,6 +1,6 @@
 # 开发文档（中文）
 
-English version: `docs/development.en.md`
+English version: [development.en.md](development.en.md)
 
 ## 仓库结构
 

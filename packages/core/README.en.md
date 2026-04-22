@@ -1,8 +1,8 @@
 # @raytonx/core
 
-Shared utilities and types for Raytonx NestJS modules.
+Shared utilities and types for RaytonX NestJS modules.
 
-Chinese version: `README.md`
+Chinese version: [README.md](README.md)
 
 ## Installation
 

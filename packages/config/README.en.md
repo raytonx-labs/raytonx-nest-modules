@@ -2,7 +2,7 @@
 
 Configuration module for NestJS applications.
 
-Chinese version: `README.md`
+Chinese version: [README.md](README.md)
 
 ## Installation
 

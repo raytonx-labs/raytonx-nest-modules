@@ -13,4 +13,4 @@ pnpm build
 
 Commit the version + changelog changes, then create and push a `v*` tag to publish from GitHub Actions.
 
-Chinese version: `README.md`
+Chinese version: [README.md](README.md)

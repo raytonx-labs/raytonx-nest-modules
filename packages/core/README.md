@@ -1,8 +1,8 @@
 # @raytonx/core
 
-Raytonx NestJS 模块的通用类型与工具方法。
+RaytonX NestJS 模块的通用类型与工具方法。
 
-English version: `README.en.md`
+English version: [README.en.md](README.en.md)
 
 ## 安装
 
