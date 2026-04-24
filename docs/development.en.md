@@ -8,6 +8,7 @@ Chinese version: [development.md](development.md)
 packages/
   core/
   config/
+  redis/
 .github/workflows/
   ci.yml
   publish.yml
@@ -111,6 +112,7 @@ pnpm build
 
 pnpm --filter @raytonx/core publish --access public --otp <one-time-password>
 pnpm --filter @raytonx/config publish --access public --otp <one-time-password>
+pnpm --filter @raytonx/nest-redis publish --access public --otp <one-time-password>
 ```
 
 After the first publish, configure Trusted Publisher on npmjs.com for each package:
