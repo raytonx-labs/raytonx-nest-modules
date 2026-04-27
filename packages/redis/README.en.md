@@ -162,6 +162,7 @@ export class JobsService {
 Default behavior:
 
 - uses `SET key token NX PX ttl` to acquire locks
+- throws `RedisLockConflictError` when a lock is already held
 - validates the token before releasing a lock
 - enables automatic lock extension in `runWithLock`
 - prefixes lock keys with `lock:`
@@ -212,6 +213,7 @@ await handle.release();
 - `RedisModule`
 - `RedisService`
 - `RedisLockService`
+- `REDIS_LOCK_SERVICE`
 - `InjectRedis(name?)`
 - `getRedisToken(name?)`
 - lock-related error types and option types

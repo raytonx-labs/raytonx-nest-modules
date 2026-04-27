@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { RedisLockAcquireError, RedisLockExtendError, RedisLockReleaseError } from "./redis.errors";
+import {
+  RedisLockConflictError,
+  RedisLockExtendError,
+  RedisLockReleaseError,
+} from "./redis.errors";
 import { RedisLockService } from "./redis.lock.service";
 import { type RedisService } from "./redis.service";
 
@@ -96,7 +100,7 @@ describe("RedisLockService", () => {
         retryAttempts: 0,
         ttl: 1_000,
       }),
-    ).rejects.toThrow(RedisLockAcquireError);
+    ).rejects.toThrow(RedisLockConflictError);
   });
 
   it("returns false when extend loses ownership", async () => {

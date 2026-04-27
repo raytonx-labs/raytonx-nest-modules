@@ -8,7 +8,7 @@ import {
 
 import { REDIS_LOCK_OPTIONS } from "./redis.constants";
 import {
-  RedisLockAcquireError,
+  RedisLockConflictError,
   RedisLockExtendError,
   RedisLockReleaseError,
   RedisModuleOptionsError,
@@ -77,7 +77,7 @@ export class RedisLockService implements OnModuleDestroy, OnApplicationShutdown 
       await this.delay(resolvedOptions.retryDelay + this.randomInt(resolvedOptions.retryJitter));
     }
 
-    throw new RedisLockAcquireError(
+    throw new RedisLockConflictError(
       key,
       `Failed to acquire Redis lock for key "${key}" after ${resolvedOptions.retryAttempts + 1} attempts.`,
     );
