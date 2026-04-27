@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { REDIS_LOCK_OPTIONS, REDIS_MODULE_OPTIONS } from "./redis.constants";
+import { REDIS_LOCK_OPTIONS, REDIS_LOCK_SERVICE, REDIS_MODULE_OPTIONS } from "./redis.constants";
 import { RedisModule } from "./redis.module";
 import { getRedisToken } from "./redis.utils";
 
@@ -107,5 +107,6 @@ describe("RedisModule", () => {
 
     expect(dynamicModule.exports).toContain(getRedisToken());
     expect(dynamicModule.exports).toContain(getRedisToken("analytics"));
+    expect(dynamicModule.exports).toContain(REDIS_LOCK_SERVICE);
   });
 });

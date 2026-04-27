@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "../..",
+    "paths": {
+      "@raytonx/core": ["../core/src"],
+      "@raytonx/nest-redis": ["../redis/src"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.d.ts"]
+}

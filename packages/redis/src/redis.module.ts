@@ -1,6 +1,11 @@
 import { type DynamicModule, Module, type Provider } from "@nestjs/common";
 
-import { REDIS_CLIENTS, REDIS_LOCK_OPTIONS, REDIS_MODULE_OPTIONS } from "./redis.constants";
+import {
+  REDIS_CLIENTS,
+  REDIS_LOCK_OPTIONS,
+  REDIS_LOCK_SERVICE,
+  REDIS_MODULE_OPTIONS,
+} from "./redis.constants";
 import type { RedisModuleAsyncOptions, RedisModuleOptions } from "./redis.interfaces";
 import { RedisLockService } from "./redis.lock.service";
 import { RedisService } from "./redis.service";
@@ -34,6 +39,10 @@ export class RedisModule {
           useValue: normalizedOptions.lock,
         },
         {
+          provide: REDIS_LOCK_SERVICE,
+          useExisting: RedisLockService,
+        },
+        {
           provide: REDIS_CLIENTS,
           useFactory: (moduleOptions: RedisModuleOptions) => createRedisClients(moduleOptions),
           inject: [REDIS_MODULE_OPTIONS],
@@ -45,6 +54,7 @@ export class RedisModule {
       exports: [
         RedisService,
         RedisLockService,
+        REDIS_LOCK_SERVICE,
         ...clientRegistrations.map((registration) => registration.token),
       ],
     };
@@ -77,6 +87,10 @@ export class RedisModule {
           inject: [REDIS_MODULE_OPTIONS],
         },
         {
+          provide: REDIS_LOCK_SERVICE,
+          useExisting: RedisLockService,
+        },
+        {
           provide: REDIS_CLIENTS,
           useFactory: (moduleOptions: RedisModuleOptions) => createRedisClients(moduleOptions),
           inject: [REDIS_MODULE_OPTIONS],
@@ -89,6 +103,7 @@ export class RedisModule {
       exports: [
         RedisService,
         RedisLockService,
+        REDIS_LOCK_SERVICE,
         ...clientRegistrations.map((registration) => registration.token),
       ],
     };

@@ -19,6 +19,16 @@ export class RedisLockAcquireError extends Error {
   }
 }
 
+export class RedisLockConflictError extends RedisLockAcquireError {
+  constructor(
+    key: string,
+    message = `Redis lock for key "${key}" is already held by another owner.`,
+  ) {
+    super(key, message);
+    this.name = "RedisLockConflictError";
+  }
+}
+
 export class RedisLockReleaseError extends Error {
   constructor(key: string, message = `Failed to release Redis lock for key "${key}".`) {
     super(message);

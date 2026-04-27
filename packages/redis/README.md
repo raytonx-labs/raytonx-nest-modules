@@ -160,6 +160,7 @@ export class JobsService {
 默认行为：
 
 - 加锁使用 `SET key token NX PX ttl`
+- 锁冲突时会抛出 `RedisLockConflictError`
 - 解锁会校验 token，避免误删别人的锁
 - `runWithLock` 默认开启自动续期
 - 默认锁 key 前缀为 `lock:`
@@ -210,6 +211,7 @@ await handle.release();
 - `RedisModule`
 - `RedisService`
 - `RedisLockService`
+- `REDIS_LOCK_SERVICE`
 - `InjectRedis(name?)`
 - `getRedisToken(name?)`
 - 锁相关错误类型与 options 类型
