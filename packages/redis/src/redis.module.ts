@@ -16,9 +16,11 @@ import {
 export class RedisModule {
   static forRoot(options: RedisModuleOptions): DynamicModule {
     const normalizedOptions = normalizeRedisModuleOptions(options);
-    const clientProviders = this.createClientProviders(
-      normalizedOptions.connections.map((connection) => connection.name ?? "default"),
-    );
+    const clientRegistrations = normalizedOptions.connections.map((connection) => ({
+      connectionName: connection.name ?? "default",
+      token: getRedisToken(connection.name ?? "default"),
+    }));
+    const clientProviders = this.createClientProviders(clientRegistrations);
 
     const dynamicModule: DynamicModule = {
       module: RedisModule,
@@ -43,7 +45,7 @@ export class RedisModule {
       exports: [
         RedisService,
         RedisLockService,
-        ...clientProviders.map((provider) => provider.provide),
+        ...clientRegistrations.map((registration) => registration.token),
       ],
     };
 
@@ -57,9 +59,13 @@ export class RedisModule {
   }
 
   static forRootAsync(options: RedisModuleAsyncOptions): DynamicModule {
-    const clientProviders = this.createClientProviders(
-      getAsyncConnectionNames(options.connectionNames),
+    const clientRegistrations = getAsyncConnectionNames(options.connectionNames).map(
+      (connectionName) => ({
+        connectionName,
+        token: getRedisToken(connectionName),
+      }),
     );
+    const clientProviders = this.createClientProviders(clientRegistrations);
     const dynamicModule: DynamicModule = {
       module: RedisModule,
       providers: [
@@ -83,7 +89,7 @@ export class RedisModule {
       exports: [
         RedisService,
         RedisLockService,
-        ...clientProviders.map((provider) => provider.provide),
+        ...clientRegistrations.map((registration) => registration.token),
       ],
     };
 
@@ -100,11 +106,16 @@ export class RedisModule {
     return dynamicModule;
   }
 
-  private static createClientProviders(connectionNames: string[]): Provider[] {
-    return connectionNames.map((connectionName) => ({
-      provide: getRedisToken(connectionName),
+  private static createClientProviders(
+    clientRegistrations: Array<{
+      connectionName: string;
+      token: string;
+    }>,
+  ): Provider[] {
+    return clientRegistrations.map((registration) => ({
+      provide: registration.token,
       useFactory: (clients: ReturnType<typeof createRedisClients>) =>
-        getRedisClientFromMap(clients, connectionName),
+        getRedisClientFromMap(clients, registration.connectionName),
       inject: [REDIS_CLIENTS],
     }));
   }
