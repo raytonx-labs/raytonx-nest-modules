@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 declare module "@nestjs/common" {
-  export type Type<T = unknown> = abstract new (...args: unknown[]) => T;
+  export type Type<T = unknown> = new (...args: any[]) => T;
   export type InjectionToken = string | symbol | Type<unknown>;
 
   export interface DynamicModule {
@@ -18,7 +19,7 @@ declare module "@nestjs/common" {
   export interface FactoryProvider<T = unknown> {
     inject?: InjectionToken[];
     provide: InjectionToken;
-    useFactory: (...args: unknown[]) => T | Promise<T>;
+    useFactory: (...args: any[]) => T | Promise<T>;
   }
 
   export interface ValueProvider<T = unknown> {
