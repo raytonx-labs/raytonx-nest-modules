@@ -8,6 +8,7 @@ English version: [README.en.md](README.en.md)
 
 - `@raytonx/core`：通用类型与工具方法（Nest 模块公共能力）。[packages/core/README.md](packages/core/README.md)
 - `@raytonx/config`：配置模块（env 文件加载 + Zod 校验/转换）。[packages/config/README.md](packages/config/README.md)
+- `@raytonx/nest-redis`：Redis 连接管理、客户端复用与分布式锁模块（不包含缓存能力）。[packages/redis/README.md](packages/redis/README.md)
 
 ## 开发文档
 

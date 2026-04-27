@@ -8,6 +8,7 @@ English version: [development.en.md](development.en.md)
 packages/
   core/
   config/
+  redis/
 .github/workflows/
   ci.yml
   publish.yml
@@ -111,6 +112,7 @@ pnpm build
 
 pnpm --filter @raytonx/core publish --access public --otp <one-time-password>
 pnpm --filter @raytonx/config publish --access public --otp <one-time-password>
+pnpm --filter @raytonx/nest-redis publish --access public --otp <one-time-password>
 ```
 
 首次发布完成后，在 npmjs.com 对每个 package 分别配置 Trusted Publisher：

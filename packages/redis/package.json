@@ -1,0 +1,44 @@
+{
+  "name": "@raytonx/nest-redis",
+  "version": "0.1.0",
+  "description": "Redis module for NestJS applications.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/raytonx-labs/raytonx-nest-modules.git",
+    "directory": "packages/redis"
+  },
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "clean": "rimraf dist",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@raytonx/core": "workspace:*",
+    "ioredis": "^5.8.1"
+  },
+  "peerDependencies": {
+    "@nestjs/common": "^10.0.0 || ^11.0.0"
+  },
+  "devDependencies": {
+    "@nestjs/common": "^11.0.0"
+  }
+}
