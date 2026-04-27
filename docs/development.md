@@ -89,12 +89,18 @@ pnpm install
 pnpm build
 ```
 
-提交上述变更后，通过创建并 push `v*` tag 触发发布：
+提交上述变更后，通过创建并 push 一个唯一的 `v*` tag 触发发布：
 
 ```bash
-git tag v0.1.0
-git push origin main --tags
+git tag v-redis-0.2.0
+git push origin v-redis-0.2.0
 ```
+
+说明：
+
+- `v*` tag 在本仓库里只是发布 workflow 的触发器，不代表所有 package 使用同一个版本号
+- monorepo 中多个 package 可以拥有不同版本，实际发布版本以各 package 的 `package.json` 和 changelog 为准
+- 为避免与历史 tag 冲突，建议使用带 package 名或发布批次信息的唯一 tag，例如 `v-redis-0.2.0`、`v-release-2026-04-27`
 
 ## npm 发布与 Trusted Publishing
 
@@ -126,4 +132,4 @@ Workflow filename: publish.yml
 Environment name: 留空
 ```
 
-之后发布不需要在 GitHub secrets 里配置 `NPM_TOKEN`，只需要 push `v*` tag。
+之后发布不需要在 GitHub secrets 里配置 `NPM_TOKEN`，只需要 push 一个唯一的 `v*` tag。

@@ -89,12 +89,18 @@ pnpm install
 pnpm build
 ```
 
-Commit the changes, then create and push a `v*` tag:
+Commit the changes, then create and push a unique `v*` tag:
 
 ```bash
-git tag v0.1.0
-git push origin main --tags
+git tag v-redis-0.2.0
+git push origin v-redis-0.2.0
 ```
+
+Notes:
+
+- In this repo, a `v*` tag is only a publish workflow trigger, not a shared version number for every package
+- In a monorepo, different packages can have different versions; the source of truth is each package's `package.json` and changelog
+- To avoid collisions with existing tags, use a unique tag that includes the package name or release batch, for example `v-redis-0.2.0` or `v-release-2026-04-27`
 
 ## Publishing and Trusted Publishing
 
@@ -126,4 +132,4 @@ Workflow filename: publish.yml
 Environment name: leave empty
 ```
 
-After that, you do not need `NPM_TOKEN` in GitHub secrets. Push a `v*` tag to publish.
+After that, you do not need `NPM_TOKEN` in GitHub secrets. Push a unique `v*` tag to publish.
