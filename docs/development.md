@@ -9,6 +9,7 @@ packages/
   core/
   config/
   redis/
+  scheduler/
 .github/workflows/
   ci.yml
   publish.yml
