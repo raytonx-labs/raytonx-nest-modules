@@ -112,16 +112,47 @@ export function createRedisClient(connection: RedisConnectionOptions): Redis {
 }
 
 export function buildRedisOptions(connection: RedisConnectionOptions): RedisOptions {
-  return {
+  const options: RedisOptions = {
     ...connection.options,
-    host: connection.host ?? connection.options?.host,
-    port: connection.port ?? connection.options?.port,
-    username: connection.username ?? connection.options?.username,
-    password: connection.password ?? connection.options?.password,
-    db: connection.db ?? connection.options?.db,
-    keyPrefix: connection.keyPrefix ?? connection.options?.keyPrefix,
-    tls: connection.tls ?? connection.options?.tls,
   };
+
+  const host = connection.host ?? connection.options?.host;
+  const port = connection.port ?? connection.options?.port;
+  const username = connection.username ?? connection.options?.username;
+  const password = connection.password ?? connection.options?.password;
+  const db = connection.db ?? connection.options?.db;
+  const keyPrefix = connection.keyPrefix ?? connection.options?.keyPrefix;
+  const tls = connection.tls ?? connection.options?.tls;
+
+  if (host !== undefined) {
+    options.host = host;
+  }
+
+  if (port !== undefined) {
+    options.port = port;
+  }
+
+  if (username !== undefined) {
+    options.username = username;
+  }
+
+  if (password !== undefined) {
+    options.password = password;
+  }
+
+  if (db !== undefined) {
+    options.db = db;
+  }
+
+  if (keyPrefix !== undefined) {
+    options.keyPrefix = keyPrefix;
+  }
+
+  if (tls !== undefined) {
+    options.tls = tls;
+  }
+
+  return options;
 }
 
 export function createLockKey(prefix: string, key: string): string {
