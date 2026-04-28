@@ -21,6 +21,7 @@ pnpm add @raytonx/nest-redis ioredis
 - wrappers around `@nestjs/schedule`
 - skip-on-overlap behavior for a single process
 - optional Redis-based distributed execution locks
+- standardized task and lock lifecycle logging
 
 ## Quick Start
 
@@ -71,6 +72,8 @@ Default behavior:
 - falls back to an in-memory lock when Redis is unavailable
 - prefers Redis distributed locking when Redis is available
 - automatically extends Redis locks for long-running jobs
+- logs task start, finish, success, failure, and skip events by default
+- emits dedicated error logs when Redis lock extension fails or lock ownership is lost before the task completes
 
 ## Redis Mode
 
@@ -120,8 +123,61 @@ SchedulerModule.forRoot({
     autoExtend: true,
     extendInterval: 10_000,
   },
+  logging: "default",
 });
 ```
+
+## Standardized Logging
+
+By default, the module writes structured JSON logs with two event groups:
+
+- task events: `task_started`, `task_succeeded`, `task_failed`, `task_skipped`, `task_finished`
+- lock events: `lock_acquired`, `lock_extended`, `lock_extend_failed`, `lock_expired_before_finish`, `lock_released`
+
+Enabled by default:
+
+- `task_started`
+- `task_succeeded`
+- `task_failed`
+- `task_skipped`
+- `task_finished`
+- `lock_extend_failed`
+- `lock_expired_before_finish`
+
+`logging: "verbose"` also enables the full lock lifecycle logs:
+
+- `lock_acquired`
+- `lock_extended`
+- `lock_released`
+
+Each log entry always includes:
+
+- `event`
+- `executionId`
+- `taskName`
+- `className`
+- `methodName`
+- `kind`
+- `driver`
+- `lockKey`
+- `scheduleValue`
+- `timestamp`
+
+Depending on the event, logs may also include:
+
+- `status`
+- `durationMs`
+- `connectionName`
+- `ttl`
+- `errorName`
+- `errorMessage`
+
+When a Redis lock TTL expires before the task finishes, you will usually see:
+
+- `lock_extend_failed`
+- `lock_expired_before_finish`
+- followed by `task_failed`
+- and finally `task_finished`
 
 ## Decorator Options
 
@@ -132,6 +188,7 @@ SchedulerModule.forRoot({
   driver: "redis",
   ttl: 60_000,
   skipIfLocked: true,
+  logging: "verbose",
 })
 ```
 
@@ -149,6 +206,13 @@ Supported options:
 - `extendInterval`
 - `skipIfLocked`
 - `enabled`
+- `logging`
+
+`logging` supports:
+
+- `"default"`: only the default task logs and critical lock error events
+- `"verbose"`: also logs lock acquire, extend, and release events
+- `false`: disables logging
 
 ## Exports
 

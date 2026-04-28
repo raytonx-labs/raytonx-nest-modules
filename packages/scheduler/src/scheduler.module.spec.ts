@@ -13,6 +13,11 @@ import { describe, expect, it, vi } from "vitest";
   () => ({
     Inject: () => () => undefined,
     Injectable: () => () => undefined,
+    Logger: class LoggerMock {
+      error(): void {}
+      log(): void {}
+      warn(): void {}
+    },
     Module: () => () => undefined,
     Optional: () => () => undefined,
   }),
@@ -58,6 +63,10 @@ describe("SchedulerModule", () => {
       provide: SCHEDULER_MODULE_OPTIONS,
       useValue: expect.objectContaining({
         driver: "auto",
+        logging: expect.objectContaining({
+          enabled: true,
+          mode: "default",
+        }),
         lock: expect.objectContaining({
           autoExtend: true,
           extendInterval: 10_000,
@@ -91,6 +100,10 @@ describe("SchedulerModule", () => {
     expect(options).toEqual(
       expect.objectContaining({
         driver: "memory",
+        logging: expect.objectContaining({
+          enabled: true,
+          mode: "default",
+        }),
       }),
     );
   });

@@ -5,7 +5,7 @@ import {
   SchedulerTaskConflictError,
   SchedulerTaskExtendError,
 } from "./scheduler.errors";
-import type { NormalizedDistributedTaskOptions } from "./scheduler.interfaces";
+import type { ExecutionLockEvent, NormalizedDistributedTaskOptions } from "./scheduler.interfaces";
 import { MemoryExecutionLockDriver, RedisExecutionLockDriver } from "./scheduler.lock-driver";
 
 const baseOptions: NormalizedDistributedTaskOptions = {
@@ -16,6 +16,11 @@ const baseOptions: NormalizedDistributedTaskOptions = {
   extendInterval: 30,
   keyPrefix: "scheduler:",
   lockKey: undefined,
+  logging: {
+    enabled: true,
+    mode: "default",
+  },
+  name: undefined,
   retryAttempts: 0,
   retryDelay: 0,
   retryJitter: 0,
@@ -111,6 +116,38 @@ describe("RedisExecutionLockDriver", () => {
       result: "ok",
     });
     expect(handle.release).toHaveBeenCalled();
+  });
+
+  it("emits lock lifecycle events", async () => {
+    const events: ExecutionLockEvent[] = [];
+    const handle = {
+      extend: vi.fn().mockResolvedValue(true),
+      release: vi.fn().mockResolvedValue(undefined),
+    };
+    const driver = new RedisExecutionLockDriver({
+      acquire: vi.fn().mockResolvedValue(handle),
+    });
+
+    await driver.runWithLock(
+      "jobs:sync",
+      () => "ok",
+      {
+        ...baseOptions,
+        autoExtend: false,
+      },
+      {
+        onEvent: (event) => events.push(event),
+      },
+    );
+
+    expect(events).toEqual([
+      expect.objectContaining({
+        event: "lock_acquired",
+      }),
+      expect.objectContaining({
+        event: "lock_released",
+      }),
+    ]);
   });
 
   it("skips when Redis reports a lock conflict", async () => {

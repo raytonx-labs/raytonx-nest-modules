@@ -5,6 +5,8 @@ import {
 } from "./scheduler.errors";
 import {
   type ExecutionLockDriver,
+  type ExecutionLockEvent,
+  type ExecutionLockHooks,
   type ExecutionLockResult,
   type NormalizedDistributedTaskOptions,
   type RedisLockServiceLike,
@@ -19,6 +21,7 @@ export class MemoryExecutionLockDriver implements ExecutionLockDriver {
     key: string,
     task: () => Promise<T> | T,
     options: NormalizedDistributedTaskOptions,
+    hooks: ExecutionLockHooks = {},
   ): Promise<ExecutionLockResult<T>> {
     if (this.activeLocks.has(key)) {
       if (options.skipIfLocked) {
@@ -31,6 +34,12 @@ export class MemoryExecutionLockDriver implements ExecutionLockDriver {
     }
 
     this.activeLocks.add(key);
+    this.emitEvent(hooks, {
+      driver: this.type,
+      error: undefined,
+      event: "lock_acquired",
+      lockKey: key,
+    });
 
     try {
       return {
@@ -39,7 +48,17 @@ export class MemoryExecutionLockDriver implements ExecutionLockDriver {
       };
     } finally {
       this.activeLocks.delete(key);
+      this.emitEvent(hooks, {
+        driver: this.type,
+        error: undefined,
+        event: "lock_released",
+        lockKey: key,
+      });
     }
+  }
+
+  private emitEvent(hooks: ExecutionLockHooks, event: ExecutionLockEvent): void {
+    hooks.onEvent?.(event);
   }
 }
 
@@ -52,6 +71,7 @@ export class RedisExecutionLockDriver implements ExecutionLockDriver {
     key: string,
     task: () => Promise<T> | T,
     options: NormalizedDistributedTaskOptions,
+    hooks: ExecutionLockHooks = {},
   ): Promise<ExecutionLockResult<T>> {
     if (!this.redisLockService) {
       throw new SchedulerRedisDriverUnavailableError();
@@ -66,6 +86,12 @@ export class RedisExecutionLockDriver implements ExecutionLockDriver {
         ...(options.connectionName ? { connectionName: options.connectionName } : {}),
       };
       const handle = await this.redisLockService.acquire(key, acquireOptions);
+      this.emitEvent(hooks, {
+        driver: this.type,
+        error: undefined,
+        event: "lock_acquired",
+        lockKey: key,
+      });
       let result: T | undefined;
       let taskError: unknown;
       let extensionError: Error | undefined;
@@ -75,10 +101,28 @@ export class RedisExecutionLockDriver implements ExecutionLockDriver {
 
       if (options.autoExtend) {
         extensionFailurePromise = new Promise<never>((_, reject) => {
-          stopAutoExtend = this.startAutoExtend(handle, key, options.extendInterval, (error) => {
-            extensionError = error;
-            reject(error);
-          });
+          stopAutoExtend = this.startAutoExtend(
+            handle,
+            key,
+            options.extendInterval,
+            hooks,
+            (error) => {
+              this.emitEvent(hooks, {
+                driver: this.type,
+                error,
+                event: "lock_extend_failed",
+                lockKey: key,
+              });
+              this.emitEvent(hooks, {
+                driver: this.type,
+                error,
+                event: "lock_expired_before_finish",
+                lockKey: key,
+              });
+              extensionError = error;
+              reject(error);
+            },
+          );
         });
       }
 
@@ -97,7 +141,19 @@ export class RedisExecutionLockDriver implements ExecutionLockDriver {
       try {
         stopAutoExtend();
         await handle.release();
+        this.emitEvent(hooks, {
+          driver: this.type,
+          error: undefined,
+          event: "lock_released",
+          lockKey: key,
+        });
       } catch (error) {
+        this.emitEvent(hooks, {
+          driver: this.type,
+          error: error instanceof Error ? error : new Error("Unknown lock release error"),
+          event: "lock_expired_before_finish",
+          lockKey: key,
+        });
         releaseError = error;
       }
 
@@ -138,6 +194,7 @@ export class RedisExecutionLockDriver implements ExecutionLockDriver {
     },
     key: string,
     extendInterval: number,
+    hooks: ExecutionLockHooks,
     onError: (error: Error) => void,
   ): () => void {
     let active = true;
@@ -152,6 +209,13 @@ export class RedisExecutionLockDriver implements ExecutionLockDriver {
         if (!extended) {
           throw new SchedulerTaskExtendError(key);
         }
+
+        this.emitEvent(hooks, {
+          driver: this.type,
+          error: undefined,
+          event: "lock_extended",
+          lockKey: key,
+        });
       } catch (error) {
         active = false;
         clearInterval(timer);
@@ -163,6 +227,10 @@ export class RedisExecutionLockDriver implements ExecutionLockDriver {
       active = false;
       clearInterval(timer);
     };
+  }
+
+  private emitEvent(hooks: ExecutionLockHooks, event: ExecutionLockEvent): void {
+    hooks.onEvent?.(event);
   }
 }
 

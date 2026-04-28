@@ -4,9 +4,11 @@ import {
   type DistributedTaskOptions,
   type NormalizedDistributedTaskMetadata,
   type NormalizedDistributedTaskOptions,
+  type NormalizedSchedulerLoggingOptions,
   type NormalizedSchedulerModuleLockOptions,
   type NormalizedSchedulerModuleOptions,
   type SchedulerDriverType,
+  type SchedulerLoggingMode,
   type SchedulerModuleLockOptions,
   type SchedulerModuleOptions,
 } from "./scheduler.interfaces";
@@ -19,6 +21,7 @@ export function normalizeSchedulerModuleOptions(
     isGlobal: options.isGlobal ?? false,
     driver: normalizeDriver(options.driver),
     lock: normalizeSchedulerModuleLockOptions(options.lock),
+    logging: normalizeSchedulerLoggingOptions(options.logging),
   };
 
   return normalized;
@@ -50,6 +53,8 @@ export function normalizeDistributedTaskOptions(
     extendInterval,
     keyPrefix: lock.keyPrefix,
     lockKey: normalizeOptionalString(options.lockKey),
+    name: normalizeOptionalString(options.name),
+    logging: normalizeSchedulerLoggingOptions(options.logging, moduleOptions.logging),
     retryAttempts: options.retryAttempts ?? lock.retryAttempts,
     retryDelay: options.retryDelay ?? lock.retryDelay,
     retryJitter: options.retryJitter ?? lock.retryJitter,
@@ -67,6 +72,38 @@ export function normalizeDistributedTaskOptions(
   }
 
   return normalized;
+}
+
+function normalizeSchedulerLoggingOptions(
+  options?: false | SchedulerLoggingMode,
+  base?: NormalizedSchedulerLoggingOptions,
+): NormalizedSchedulerLoggingOptions {
+  if (options === false) {
+    return {
+      enabled: false,
+      mode: base?.mode ?? "default",
+    };
+  }
+
+  if (options === undefined) {
+    return {
+      enabled: base?.enabled ?? true,
+      mode: base?.mode ?? "default",
+    };
+  }
+
+  return {
+    enabled: true,
+    mode: normalizeLoggingMode(options),
+  };
+}
+
+function normalizeLoggingMode(mode: SchedulerLoggingMode): SchedulerLoggingMode {
+  if (mode !== "default" && mode !== "verbose") {
+    throw new SchedulerModuleOptionsError('logging must be "default", "verbose", or false.');
+  }
+
+  return mode;
 }
 
 export function createSchedulerLockKey(

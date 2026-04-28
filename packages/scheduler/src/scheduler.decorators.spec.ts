@@ -37,6 +37,11 @@ const timeoutSpy = vi.fn(() => () => undefined);
   () => ({
     Inject: () => () => undefined,
     Injectable: () => () => undefined,
+    Logger: class LoggerMock {
+      error(): void {}
+      log(): void {}
+      warn(): void {}
+    },
     Optional: () => () => undefined,
   }),
   {

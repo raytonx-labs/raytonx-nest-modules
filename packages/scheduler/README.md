@@ -21,6 +21,7 @@ pnpm add @raytonx/nest-redis ioredis
 - 基于 `@nestjs/schedule` 的任务装饰器封装
 - 单进程下的任务重入跳过
 - 可选的 Redis 分布式锁执行保护
+- 标准化任务与锁生命周期日志
 
 ## 快速开始
 
@@ -71,6 +72,8 @@ export class JobsService {
 - 未安装或未接入 Redis 时，自动使用进程内锁
 - 接入 Redis 时，默认优先使用 Redis 分布式锁
 - 长任务默认会自动续期 Redis 锁
+- 默认记录任务开始、结束、成功、失败、跳过日志
+- Redis 锁续期失败或任务执行期间失去锁所有权时，会单独输出错误日志
 
 ## Redis 分布式模式
 
@@ -120,8 +123,61 @@ SchedulerModule.forRoot({
     autoExtend: true,
     extendInterval: 10_000,
   },
+  logging: "default",
 });
 ```
+
+## 标准化日志
+
+默认会输出结构化 JSON 日志，事件分为两类：
+
+- 任务事件：`task_started`、`task_succeeded`、`task_failed`、`task_skipped`、`task_finished`
+- 锁事件：`lock_acquired`、`lock_extended`、`lock_extend_failed`、`lock_expired_before_finish`、`lock_released`
+
+默认开启的事件：
+
+- `task_started`
+- `task_succeeded`
+- `task_failed`
+- `task_skipped`
+- `task_finished`
+- `lock_extend_failed`
+- `lock_expired_before_finish`
+
+`logging: "verbose"` 会额外开启完整锁日志：
+
+- `lock_acquired`
+- `lock_extended`
+- `lock_released`
+
+日志字段固定包含：
+
+- `event`
+- `executionId`
+- `taskName`
+- `className`
+- `methodName`
+- `kind`
+- `driver`
+- `lockKey`
+- `scheduleValue`
+- `timestamp`
+
+按场景补充字段：
+
+- `status`
+- `durationMs`
+- `connectionName`
+- `ttl`
+- `errorName`
+- `errorMessage`
+
+当 Redis 锁 TTL 到期且任务尚未结束时，通常会看到：
+
+- `lock_extend_failed`
+- `lock_expired_before_finish`
+- 随后的 `task_failed`
+- 最终的 `task_finished`
 
 ## 装饰器选项
 
@@ -132,6 +188,7 @@ SchedulerModule.forRoot({
   driver: "redis",
   ttl: 60_000,
   skipIfLocked: true,
+  logging: "verbose",
 })
 ```
 
@@ -149,6 +206,13 @@ SchedulerModule.forRoot({
 - `extendInterval`
 - `skipIfLocked`
 - `enabled`
+- `logging`
+
+`logging` 支持：
+
+- `"default"`：只输出默认开启的任务日志和关键锁异常日志
+- `"verbose"`：额外输出锁获取、续期、释放日志
+- `false`：关闭日志
 
 ## 导出内容
 

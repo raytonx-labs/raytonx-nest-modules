@@ -47,6 +47,13 @@ declare module "@nestjs/common" {
     onApplicationShutdown(signal?: string): unknown;
   }
 
+  export class Logger {
+    constructor(context?: string);
+    error(message: string): void;
+    log(message: string): void;
+    warn(message: string): void;
+  }
+
   export function Inject(token?: InjectionToken): ParameterDecorator & PropertyDecorator;
   export function Injectable(): ClassDecorator;
   export function Module(metadata?: {
