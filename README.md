@@ -20,3 +20,7 @@ English version: [README.en.md](README.en.md)
 
 - 中文：[docs/development.md](docs/development.md)
 - English: [docs/development.en.md](docs/development.en.md)
+
+## License
+
+[MIT](./LICENSE)

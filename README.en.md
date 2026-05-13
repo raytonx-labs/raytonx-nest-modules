@@ -18,3 +18,7 @@ Chinese version: [README.md](README.md)
 
 - Chinese: [docs/development.md](docs/development.md)
 - English: [docs/development.en.md](docs/development.en.md)
+
+## License
+
+[MIT](./LICENSE)
