@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "../..",
+    "paths": {
+      "@raytonx/core": ["../core/src"]
+    }
+  },
+  "include": ["src/**/*.ts"]
+}
